@@ -40,8 +40,10 @@ def get_genes_peaks(gene_list_file):
     return gene_filtered_peaks_file
 
 def run_intersection(srx_peak, gene_filtered_peak, gene_bed_num, target_length):
-    target_overlap = find_overlap_keep_info_NOT_sep_strand_lastColMarked.main(gene_filtered_peak, srx_peak) 
-    overall_overlap = find_overlap_keep_info_NOT_sep_strand_lastColMarked.main(GENES_PEAK_FILE, srx_peak)
+    # target_overlap = find_overlap_keep_info_NOT_sep_strand_lastColMarked.main(gene_filtered_peak, srx_peak) 
+    # overall_overlap = find_overlap_keep_info_NOT_sep_strand_lastColMarked.main(GENES_PEAK_FILE, srx_peak)
+    target_overlap = int(os.popen("bedtools intersect -a {} -b {} -u -sorted | wc -l".format(gene_filtered_peak, srx_peak)).read().strip())
+    overall_overlap = int(os.popen("bedtools intersect -a {} -b {} -u -sorted | wc -l".format(GENES_PEAK_FILE, srx_peak)).read().strip())
 
     nontarget_overlap = overall_overlap - target_overlap
     target_nonoverlap = target_length - target_overlap
@@ -89,8 +91,8 @@ def write_analysis(gene_list_file):
             f.write('%s\t%.2f\t%d/%d\t%d/%d\n' % (res[0], res[1], res[2], res[3], res[4], res[5]))
 
 if __name__ == '__main__':
-    # for gene_list_file in os.listdir(GENE_LIST_DIR):
-    #     write_analysis(gene_list_file)
-    from multiprocessing import Pool
-    pool = Pool(10)
-    pool.map(write_analysis, os.listdir(GENE_LIST_DIR))
+    for gene_list_file in os.listdir(GENE_LIST_DIR):
+        write_analysis(gene_list_file)
+    # from multiprocessing import Pool
+    # pool = Pool(10)
+    # pool.map(write_analysis, os.listdir(GENE_LIST_DIR))
